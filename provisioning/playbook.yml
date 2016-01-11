@@ -1,0 +1,75 @@
+---
+- hosts: all
+  user: vagrant
+  sudo: yes
+  tasks:
+    - name: include variables 
+      include_vars: vars.yml
+
+    - name: run apt-get update
+      apt: update_cache=yes
+
+    - name: Install required system packages
+      apt: name={{ item }} state=installed
+      with_items:
+        - build-essential
+        - libpq-dev
+        - python-dev
+        - python-setuptools
+        - python-pip
+        - postgresql-9.3-postgis-2.1
+        - postgresql-contrib
+        - git 
+        - libjpeg-dev
+        - fish
+
+    - name: create worker group
+      user: name=worker uid=1020
+
+    - name: create {{ site_user }} user and add to the worker group
+      user: name={{ site_user }} uid=1010 groups="worker,sudo" password=$6$aPAfjl5w39XCz4qf$Yfjp5AHL1QwdYYiP6omTytTMhAt2YHYJ.yPmr2q5yI7U35fS0FLj2TSWtzL5ps8UiTjyVABkZeNxu5HmxHa33/
+
+    - name: Create {{ site_user }} root directory and configure permissions
+      file: path=/iscape/sites/{{ site_user }} state=directory owner={{ site_user }} group=worker  mode="g+s" recurse=yes
+
+    - name: Upgrade pip
+      pip: name=pip state=latest
+
+    - name: install virtualenv
+      pip: name=virtualenv
+
+    - name: create virtualenv
+      command: virtualenv /iscape/sites/{{ site_user }}/env
+
+    - name: Create data directory
+      file: path=/iscape/sites/{{ site_user }}/data state=directory
+
+    - name: install psycopg2 in order to configure postgres databases
+      pip: name=psycopg2
+
+    - name: Create postgres user
+      postgresql_user: name={{ site_user }} password=password
+      sudo: yes
+      sudo_user: postgres
+
+    - name: Create postgres database
+      postgresql_db: name={{ site_user }} owner={{ site_user }}
+      sudo: yes
+      sudo_user: postgres
+
+    - name: Add postgis extension to {{ site_user }}
+      postgresql_ext: name=postgis db={{ site_user }}
+      sudo: yes
+      sudo_user: postgres
+
+    - name: Configure permissions again so they'll apply to the recently created directories
+      file: path=/iscape/sites/{{ site_user }} owner={{ site_user }} group=worker  mode="g+s" recurse=yes
+
+    # Setup the developer tools
+    - name: Create fish config directory
+      file: path=~/.config/fish state=directory owner={{ site_user }} group={{ site_user }}
+      sudo_user: "{{ site_user }}"
+
+    - name: Set fish as the default shell 
+      user: name={{ site_user }} shell=/usr/bin/fish
+      sudo: yes

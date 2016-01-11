@@ -1,0 +1,6 @@
+.vagrant/
+*.swp
+*.swn
+*.pyc
+src/
+src-temp/
