@@ -1,0 +1,16 @@
+ # Setup the developer tools
+                                 
+- name: Install fish
+  apt: name=fish state=installed
+ 
+- name: Create fish config directory
+  file: path=~/.config/fish state=directory owner={{ site_user }} group={{ site_user }}
+  sudo_user: "{{ site_user }}"
+
+- name: Create fish configuration file
+  copy: src=flavors/giovanni/config.fish dest=~/.config/fish/config.fish owner={{ site_user }} group={{ site_user }}
+  sudo_user: "{{ site_user }}"
+
+- name: Set fish as the default shell
+  user: name={{ site_user }} shell=/usr/bin/fish
+  sudo: yes

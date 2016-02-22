@@ -37,7 +37,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 
   # Setup the chicago-abandoned-bikes client server 
-  config.vm.define "shareabouts_client_abandoned_bikes"
+  config.vm.define "shareabouts_client_abandoned_bikes" do |shareabouts_client_abandoned_bikes|
 
     shareabouts_client_abandoned_bikes.vm.provision "ansible" do |ansible|
       ansible.playbook = "provisioning/shareabouts_client_abandoned_bikes.yml"
@@ -62,6 +62,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     shareabouts_region_service.vm.network "forwarded_port", guest: 8030, host: 8030
 
   end
-
 
 end

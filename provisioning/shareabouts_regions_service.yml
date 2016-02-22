@@ -17,11 +17,8 @@
         - python-dev
         - python-setuptools
         - python-pip
-        - postgresql-9.3-postgis-2.1
-        - postgresql-contrib
         - git 
         - libjpeg-dev
-        - fish
 
     - name: create worker group
       user: name=worker uid=1020
@@ -31,6 +28,15 @@
 
     - name: Create {{ site_user }} root directory and configure permissions
       file: path=/iscape/sites/{{ site_user }} state=directory owner={{ site_user }} group=worker  mode="g+s" recurse=yes
+
+    - name: Create directory for {{ site_user }} ssh keys
+      file: path=/home/{{ site_user }}/.ssh state=directory owner={{ site_user }} group={{ site_user }}
+
+    - name: copy keys to .ssh directory
+      copy: src=~/.ssh/id_rsa dest=/home/{{ site_user }}/.ssh/id_rsa mode=0600 owner={{ site_user }} group={{ site_user }}
+
+    - name: copy keys to .ssh directory
+      copy: src=~/.ssh/id_rsa.pub dest=/home/{{ site_user }}/.ssh/id_rsa.pub mode=0600 owner={{ site_user }} group={{ site_user }}         
 
     - name: Upgrade pip
       pip: name=pip state=latest
@@ -44,32 +50,12 @@
     - name: Create data directory
       file: path=/iscape/sites/{{ site_user }}/data state=directory
 
-    - name: install psycopg2 in order to configure postgres databases
-      pip: name=psycopg2
-
-    - name: Create postgres user
-      postgresql_user: name={{ site_user }} password=password
-      sudo: yes
-      sudo_user: postgres
-
-    - name: Create postgres database
-      postgresql_db: name={{ site_user }} owner={{ site_user }}
-      sudo: yes
-      sudo_user: postgres
-
-    - name: Add postgis extension to {{ site_user }}
-      postgresql_ext: name=postgis db={{ site_user }}
-      sudo: yes
-      sudo_user: postgres
+    - name: Create logging directory
+      file: path=/iscape/sites/{{ site_user }}/var/log state=directory
 
     - name: Configure permissions again so they'll apply to the recently created directories
       file: path=/iscape/sites/{{ site_user }} owner={{ site_user }} group=worker  mode="g+s" recurse=yes
 
     # Setup the developer tools
-    - name: Create fish config directory
-      file: path=~/.config/fish state=directory owner={{ site_user }} group={{ site_user }}
-      sudo_user: "{{ site_user }}"
-
-    - name: Set fish as the default shell 
-      user: name={{ site_user }} shell=/usr/bin/fish
-      sudo: yes
+    - name: include choice of dev tools
+      include: flavors/dev-environments/environment.yml 
