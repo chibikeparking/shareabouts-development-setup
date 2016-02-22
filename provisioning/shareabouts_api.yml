@@ -83,8 +83,8 @@
     - name: pip install requirements.txt
       pip: virtualenv=/iscape/sites/{{ site_user }} requirements=/iscape/sites/{{ site_user }}/proj/{{ site_user }}/requirements.txt
 
-    - name: run python manage.py migrate
-      django_manage: virtualenv=/iscape/sites/{{ site_user }} command=migrate app_path=/iscape/sites/{{ site_user }}/proj/{{ site_user }}/src
+    #- name: run python manage.py migrate
+    #  django_manage: virtualenv=/iscape/sites/{{ site_user }} app_path=/iscape/sites/{{ site_user }}/proj/{{ site_user }}/src command=migrate
 
 
     #Setup the developer tools
