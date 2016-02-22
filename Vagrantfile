@@ -1,21 +1,67 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
   config.vm.box = "ubuntu/trusty64"
 
   config.vm.provider "virtualbox" do |v|
-    v.memory = 2048
+    v.memory = 1024
   end
 
-  config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "provisioning/playbook.yml"
+  # Setup the shareabouts-api server
+  config.vm.define "shareabouts_api" do |shareabouts_api|
+
+    shareabouts_api.vm.provision "ansible" do |ansible|
+      ansible.playbook = "provisioning/shareabouts_api.yml"
+    end
+
+    shareabouts_api.vm.synced_folder "./src-shareabouts-api", "/iscape/sites/shareabouts/proj/shareabouts", owner: 1010, group: 1020
+
+    shareabouts_api.vm.network "forwarded_port", guest: 8000, host: 8000
+
   end
 
-  config.vm.synced_folder "./src-shareabouts-api-server", "/iscape/sites/shareabouts-api-server/proj/shareabouts-api-server", owner: 1010, group: 1020
-  config.vm.synced_folder "./src-src-shareabouts-client-abandoned-bikes", "/iscape/sites/src-shareabouts-client-abandoned-bikes/proj/src-shareabouts-client-abandoned-bikes", owner: 1010, group: 1020
-  config.vm.synced_folder "./src-shareabouts-client-bike-parking", "/iscape/sites/src-shareabouts-client-bike-parking/proj/src-shareabouts-client-bike-parking", owner: 1010, group: 1020
+  
+  # Setup the chicago-bike-parking client server
+  config.vm.define "shareabouts_client_bike_parking" do |shareabouts_client_bike_parking|
 
-  config.vm.network "forwarded_port", guest: 8000, host: 8000
-  config.vm.network "forwarded_port", guest: 8010, host: 8010
-  config.vm.network "forwarded_port", guest: 8020, host: 8020
+    shareabouts_client_bike_parking.vm.provision "ansible" do |ansible|
+      ansible.playbook = "provisioning/shareabouts_client_bike_parking.yml"
+    end
+
+    shareabouts_client_bike_parking.vm.synced_folder "./src-shareabouts-client-bike-parking", "/iscape/sites/shareabouts/proj/shareabouts", owner: 1010, group: 1020
+
+    shareabouts_client_bike_parking.vm.network "forwarded_port", guest: 8010, host: 8010
+
+  end
+
+
+  # Setup the chicago-abandoned-bikes client server 
+  config.vm.define "shareabouts_client_abandoned_bikes"
+
+    shareabouts_client_abandoned_bikes.vm.provision "ansible" do |ansible|
+      ansible.playbook = "provisioning/shareabouts_client_abandoned_bikes.yml"
+    end
+
+    shareabouts_client_abandoned_bikes.vm.synced_folder "./src-shareabouts-client-abandoned-bikes", "/iscape/sites/shareabouts/proj/shareabouts", owner: 1010, group: 1020
+
+    shareabouts_client_abandoned_bikes.vm.network "forwarded_port", guest: 8020, host: 8020
+
+  end
+
+
+  # Setup the region-service server 
+  config.vm.define "shareabouts_region_service" do |shareabouts_region_service|
+
+    shareabouts_region_service.vm.provision "ansible" do |ansible|
+      ansible.playbook = "provisioning/shareabouts_region_service.yml"
+    end
+
+    shareabouts_region_service.vm.synced_folder "./src-shareabouts-client-abandoned-bikes", "/iscape/sites/shareabouts/proj/shareabouts", owner: 1010, group: 1020
+
+    shareabouts_region_service.vm.network "forwarded_port", guest: 8030, host: 8030
+
+  end
+
+
 end
