@@ -4,3 +4,4 @@
 *.pyc
 src-*
 src-temp/
+provisioning/flavors/dev-environments/environment.yml

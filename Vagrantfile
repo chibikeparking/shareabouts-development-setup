@@ -26,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "shareabouts_client_bike_parking" do |shareabouts_client_bike_parking|
 
     shareabouts_client_bike_parking.vm.provision "ansible" do |ansible|
-      ansible.playbook = "provisioning/shareabouts_client_bike_parking.yml"
+      ansible.playbook = "provisioning/shareabouts_client.yml"
     end
 
     shareabouts_client_bike_parking.vm.synced_folder "./src-shareabouts-client-bike-parking", "/iscape/sites/shareabouts/proj/shareabouts", owner: 1010, group: 1020
@@ -40,7 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "shareabouts_client_abandoned_bikes" do |shareabouts_client_abandoned_bikes|
 
     shareabouts_client_abandoned_bikes.vm.provision "ansible" do |ansible|
-      ansible.playbook = "provisioning/shareabouts_client_abandoned_bikes.yml"
+      ansible.playbook = "provisioning/shareabouts_client.yml"
     end
 
     shareabouts_client_abandoned_bikes.vm.synced_folder "./src-shareabouts-client-abandoned-bikes", "/iscape/sites/shareabouts/proj/shareabouts", owner: 1010, group: 1020

@@ -56,6 +56,13 @@
     - name: Configure permissions again so they'll apply to the recently created directories
       file: path=/iscape/sites/{{ site_user }} owner={{ site_user }} group=worker  mode="g+s" recurse=yes
 
+    - name: clone the repository
+      git: repo=https://github.com/openplans/shareabouts-region-service.git dest=/iscape/sites/{{ site_user }}/proj/{{ site_user }}
+
+    - name: pip install requirements.txt
+      pip: virtualenv=/iscape/sites/{{ site_user }} requirements=/iscape/sites/{{ site_user }}/proj/{{ site_user }}/requirements.txt
+ 
+
     # Setup the developer tools
     - name: include choice of dev tools
       include: flavors/dev-environments/environment.yml 
